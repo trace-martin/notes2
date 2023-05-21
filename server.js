@@ -18,7 +18,7 @@ app.use(express.json());
 
 app.delete('/api/notes/:id', (req, res) => {
   const noteId = req.params.id;
-  const newDb = db.filter(note => note.id !== noteId);
+  const newDb = db.filter(note => note.id !== String(noteId));
   fs.writeFile('./db/db.json', JSON.stringify(newDb), err => {
     if (err) return res.status(500).send('An error occurred while deleting the note.');
     res.json(newDb);
@@ -36,14 +36,6 @@ app.get('/notes', (req, res) => {
 
 
 // API Routes
-// app.get('/api/notes', (req, res) => {
-//   fs.readFile('./db/db.json', (err, data) => {
-//     if (err) return res.status(500).send('An error occurred while retrieving notes.');
-//     const dbData = JSON.parse(data);
-//     res.json(dbData);
-//   });   
-// });
-
 app.get('/api/notes', (req, res) => {
   fs.readFile('./db/db.json', (err, data) => {
     if (err) {
@@ -58,7 +50,7 @@ app.get('/api/notes', (req, res) => {
 
 app.post('/api/notes', (req, res) => {
   const newNote = req.body;
-  newNote.id = uuid;
+  newNote.id = uuid();
   db.push(newNote);
   fs.writeFile('./db/db.json', JSON.stringify(db), err => {
     if (err) return res.status(500).send('An error occurred while saving the note.');
@@ -69,6 +61,7 @@ app.post('/api/notes', (req, res) => {
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/index.html'));
 });
+
 
 // Start the server
 app.listen(PORT, () => {
